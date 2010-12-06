@@ -83,7 +83,7 @@ request :D
  * Tawani Anyangwe for the [original Topological Sorter script](http://tawani.blogspot.com/2009/02/topological-sorting-and-cyclic.html) (itself adapted from a [Java version](http://www.java2s.com/Code/Java/Collections-Data-Structure/Topologicalsorting.htm))
 
 
-### Plans for future features
+## Plans for future features
 	
  * Multiple placeholders for output scripts (so you can specify for instance to include a script at the top or bottom of a page)
  * Should be able to specify the IDs of the above placeholders and should be optional (for instance not require CSS)
