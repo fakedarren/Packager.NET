@@ -1,0 +1,7 @@
+c:\Projects\Packager.NET\Packager.NET\bin\Debug\Packager.NET.dll
+c:\Projects\Packager.NET\Packager.NET\bin\Debug\Packager.NET.pdb
+c:\Projects\Packager.NET\Packager.NET\bin\Debug\EcmaScript.NET.modified.dll
+c:\Projects\Packager.NET\Packager.NET\bin\Debug\Yahoo.Yui.Compressor.dll
+c:\Projects\Packager.NET\Packager.NET\obj\Debug\ResolveAssemblyReference.cache
+c:\Projects\Packager.NET\Packager.NET\obj\Debug\Packager.NET.dll
+c:\Projects\Packager.NET\Packager.NET\obj\Debug\Packager.NET.pdb

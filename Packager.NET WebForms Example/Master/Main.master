@@ -1,0 +1,14 @@
+﻿<%@ Master Language="C#" %>
+<%@ Register Assembly="Packager.NET" Namespace="Packager" TagPrefix="Packager" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <title>Packager Example</title>
+	<Packager:CSSHolder ID="CSSPlaceholder" runat="server" />
+</head>
+<body>
+	<h1>Packager Test</h1>
+</body>
+<Packager:ScriptHolder ID="ScriptsPlaceholder" runat="server" />
+</html>
+<asp:ContentPlaceHolder ID="PageAssets" runat="server" />
