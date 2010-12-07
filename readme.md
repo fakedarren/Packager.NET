@@ -37,6 +37,7 @@ Packager will then automatically parse the YAML headers of the files and pull in
 
 ## Configuration Options
 
+ * RootFolder: Root of the site
  * CacheFolder: Where to store the compressed cached files
  * Debug: This will not concatenate the files and just output all the dependencies and includes if set to 'true'
  * Compress: CSS and JavaScript will be minified (using the YUI minifier) if this is set to 'true'

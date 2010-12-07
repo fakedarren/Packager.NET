@@ -14,7 +14,7 @@ using Yahoo.Yui.Compressor;
 
 namespace Packager
 {
-	
+
 	#region Models
 
 	public class Asset
@@ -42,8 +42,8 @@ namespace Packager
 		public string Src { get; set; }
 	}
 
-	public class StyleSheetCollection : List<CSS> {}
-	public class ScriptFileCollection : List<Script> {}
+	public class StyleSheetCollection : List<CSS> { }
+	public class ScriptFileCollection : List<Script> { }
 
 	#endregion
 
@@ -61,20 +61,21 @@ namespace Packager
 			this.Compress = Convert.ToBoolean(doc.SelectSingleNode("//compress").InnerText);
 			this.Optimise = Convert.ToBoolean(doc.SelectSingleNode("//optimise").InnerText);
 			this.CacheFolder = doc.SelectSingleNode("//cachefolder").InnerText;
+			this.Root = doc.SelectSingleNode("//rootfolder").InnerText;
 
-			foreach (XmlNode script in doc.SelectSingleNode("//javascript").ChildNodes) {	this.JavaScriptPackages.Add(script.InnerText);	}
-			foreach (XmlNode stylesheet in doc.SelectSingleNode("//css").ChildNodes)	{	this.CSSPackages.Add(stylesheet.InnerText);		}
+			foreach (XmlNode script in doc.SelectSingleNode("//javascript").ChildNodes) { this.JavaScriptPackages.Add(script.InnerText); }
+			foreach (XmlNode stylesheet in doc.SelectSingleNode("//css").ChildNodes) { this.CSSPackages.Add(stylesheet.InnerText); }
 
 			Parser parser = new Parser();
 
 			foreach (string javaScriptPackage in this.JavaScriptPackages)
 			{
-				List<string> scripts = this.GetAllFilesInFolder(HttpContext.Current.Server.MapPath(javaScriptPackage));
+				List<string> scripts = this.GetAllFilesInFolder(HttpContext.Current.Server.MapPath(this.Root + javaScriptPackage));
 				scripts.ForEach(script => this.AllScripts.Add(parser.ParseAsset(script)));
 			}
 			foreach (string cssPackage in this.CSSPackages)
 			{
-				List<string> stylesheets = this.GetAllFilesInFolder(HttpContext.Current.Server.MapPath(cssPackage));
+				List<string> stylesheets = this.GetAllFilesInFolder(HttpContext.Current.Server.MapPath(this.Root + cssPackage));
 				stylesheets.ForEach(stylesheet => this.AllCSS.Add(parser.ParseAsset(stylesheet)));
 			}
 		}
@@ -85,13 +86,14 @@ namespace Packager
 		public bool Compress;
 		public bool Optimise;
 		public string CacheFolder;
+		public string Root;
 
 		public List<string> JavaScriptPackages = new List<string>();
 		public List<string> CSSPackages = new List<string>();
-		
+
 		public List<Asset> AllScripts = new List<Asset>();
 		public List<Asset> AllCSS = new List<Asset>();
-		
+
 		public List<string> JavaScriptRequirements = new List<string>();
 		public List<string> CSSRequirements = new List<string>();
 
@@ -143,7 +145,7 @@ namespace Packager
 				}
 			}
 		}
-		
+
 		public List<string> GetAllFilesInFolder(string folder)
 		{
 			List<string> folders = new List<string>();
@@ -168,7 +170,7 @@ namespace Packager
 			return folders;
 		}
 
-		public string CreateMD5Hash(string input)	
+		public string CreateMD5Hash(string input)
 		{
 			MD5 md5 = MD5.Create();
 			byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(input);
@@ -187,12 +189,12 @@ namespace Packager
 			var optimisationCache = HttpContext.Current.Server.MapPath(this.CacheFolder + "/optimisation.xml");
 		}
 	}
-	
+
 	#endregion
 
-	
+
 	#region Content Includes
-	
+
 	[ParseChildren(typeof(CSS), DefaultProperty = "CSSFiles", ChildrenAsProperties = true)]
 	public class StyleSheets : WebControl
 	{
@@ -246,14 +248,14 @@ namespace Packager
 			else if (this.Page.FindControl("ScriptsPlaceholder") != null)
 			{
 				var holder = (this.Page.FindControl("ScriptsPlaceholder") as ScriptHolder);
-				this.ScriptFiles.ForEach(script => holder.scripts.Add(script));			
+				this.ScriptFiles.ForEach(script => holder.scripts.Add(script));
 			}
 			else
 			{
 				throw new Exception("Packager: Could not find placeholder 'ScriptsPlaceholder' in Page or Master Page");
 			}
 		}
-		
+
 		protected override void Render(HtmlTextWriter writer)
 		{
 		}
@@ -296,7 +298,7 @@ namespace Packager
 				foreach (var include in uniques)
 				{
 					string path = include.Replace(root, "").Replace(@"\", "/");
-					writer.Write("\n<link href='/" + path + "' type='text/css' rel='stylesheet' media='screen' />");
+					writer.Write("\n<link href='" + packager.Root + path + "' type='text/css' rel='stylesheet' media='screen' />");
 				}
 			}
 			else
@@ -316,7 +318,7 @@ namespace Packager
 					textwriter.Close();
 				}
 				// Output
-				writer.Write("\n<link href='" + packager.CacheFolder + "/" + hash + ".css' type='text/css' rel='stylesheet' media='screen' />");
+				writer.Write("\n<link href='" + packager.Root + packager.CacheFolder + "/" + hash + ".css' type='text/css' rel='stylesheet' media='screen' />");
 			}
 		}
 	}
@@ -325,25 +327,25 @@ namespace Packager
 	{
 		public List<Script> scripts = new List<Script>();
 		public List<Asset> allAssets = new List<Asset>();
-		
- 		protected override void Render(HtmlTextWriter writer)
+
+		protected override void Render(HtmlTextWriter writer)
 		{
 			PackagerHelper packager = new PackagerHelper();
 			Parser parser = new Parser();
 
 			Dictionary<string, Asset> includes = new Dictionary<string, Asset>();
 			List<string> requires = new List<string>();
-			
+
 			packager.AddJavaScript(this.scripts);
 			packager.JavaScriptRequirements.ForEach(requirement => packager.GetJavaScriptRequirements(requirement));
-			
+
 			if (packager.Optimise)
 			{
 				packager.OptimiseIncludes();
 			}
 
 			Sorter sorter = new Sorter(packager.JavaScriptIncludes);
-			
+
 			var uniques = sorter.Sorted;
 			foreach (Script script in this.scripts)
 			{
@@ -351,14 +353,14 @@ namespace Packager
 				string mapped = HttpContext.Current.Server.MapPath("~" + src);
 				if (!uniques.Contains(mapped)) uniques.Add(mapped);
 			}
-			
+
 			if (packager.Debug)
 			{
 				string root = HttpContext.Current.Server.MapPath("~");
 				foreach (var include in uniques)
 				{
 					string path = include.Replace(root, "").Replace(@"\", "/");
-					writer.Write("\n<script src='/" + path + "' type='text/javascript'></script>");
+					writer.Write("\n<script src='" + packager.Root + path + "' type='text/javascript'></script>");
 				}
 			}
 			else
@@ -378,7 +380,7 @@ namespace Packager
 					textwriter.Close();
 				}
 				// Output
-				writer.Write("\n<script src='" + packager.CacheFolder + "/" + hash + ".js' type='text/javascript'></script>");
+				writer.Write("\n<script src='" + packager.Root + packager.CacheFolder + "/" + hash + ".js' type='text/javascript'></script>");
 			}
 		}
 	}
