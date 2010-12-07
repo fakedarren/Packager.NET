@@ -64,7 +64,7 @@ namespace Packager
 			this.Root = doc.SelectSingleNode("//rootfolder").InnerText;
 
 			foreach (XmlNode script in doc.SelectSingleNode("//javascript").ChildNodes) { this.JavaScriptPackages.Add(script.InnerText); }
-			foreach (XmlNode stylesheet in doc.SelectSingleNode("//css").ChildNodes) { this.CSSPackages.Add(stylesheet.InnerText); }
+			foreach (XmlNode stylesheet in doc.SelectSingleNode("//css").ChildNodes)    { this.CSSPackages.Add(stylesheet.InnerText); }
 
 			Parser parser = new Parser();
 
