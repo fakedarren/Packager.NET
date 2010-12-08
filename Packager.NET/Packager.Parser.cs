@@ -73,6 +73,7 @@ namespace Packager
 					}
 					if (line.StartsWith("---")) started = true;
 				}
+                stream.Close();
 			}
 			else
 			{

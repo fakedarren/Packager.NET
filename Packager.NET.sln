@@ -27,6 +27,7 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Packager.NET WebForms Examp
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4DDBFA2A-9320-4FAE-A90A-FD3F2ACD8A5F}"
 	ProjectSection(SolutionItems) = preProject
+		gitignore.txt = gitignore.txt
 		licence.txt = licence.txt
 		readme.md = readme.md
 	EndProjectSection
