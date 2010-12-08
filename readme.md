@@ -10,7 +10,7 @@ Allows you to specify placeholders for both JavaScript and CSS files; you can th
 
  * Add a reference to the Packager, YUI minifier and Ecmascript.NET DLLs
  * A placeholder for CSS and JS must be present in either the parent Page or Master Page
- * Currently these must have IDs of 'CSSHolder' and 'ScriptsHolder' respectively (see 'plans for future features' for more)
+ * Currently these must have IDs of 'CSSPlaceholder' and 'ScriptsPlaceholder' respectively (see 'plans for future features' for more)
  * There is a configuration file, '/Configuration/Packager.config', amend as necessary
 
 Packages are registered in the relevant sections of the configuration file.
@@ -18,6 +18,11 @@ Packages are registered in the relevant sections of the configuration file.
 To include Packager.NET components in a Page, Master Page or Control you'll need to reference the DLL:
 
 	<%@ Register Assembly="Packager.NET" Namespace="Packager" TagPrefix="Packager" />
+
+Placeholders must be placed in a Master Page or Page for both JavaScript and CSS:
+
+	<Packager:CSSHolder ID="CSSPlaceholder" runat="server" />
+	<Packager:ScriptHolder ID="ScriptsPlaceholder" runat="server" />
 
 You can then include CSS as follows:
 

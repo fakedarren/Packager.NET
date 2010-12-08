@@ -1,7 +1,7 @@
 ﻿/*
 ---
 
-requires: [Array, Function, Number, String]
+requires: [Array, Function, Number, String, Request]
 
 provides: [App]
 
