@@ -57,7 +57,7 @@ namespace Packager
 			XmlDocument doc = new XmlDocument();
 			doc.Load(HttpContext.Current.Server.MapPath("~/Configuration/Packager.config"));
 
-			this.Debug = Convert.ToBoolean(doc.SelectSingleNode("//debug").InnerText);
+			this.Debug = Convert.ToBoolean(HttpContext.Current.Request.QueryString["debug"] ?? doc.SelectSingleNode("//debug").InnerText);
 			this.Compress = Convert.ToBoolean(doc.SelectSingleNode("//compress").InnerText);
 			this.Optimise = Convert.ToBoolean(doc.SelectSingleNode("//optimise").InnerText);
 			this.CacheFolder = doc.SelectSingleNode("//cachefolder").InnerText;
