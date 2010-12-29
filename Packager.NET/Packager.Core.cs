@@ -188,6 +188,69 @@ namespace Packager
 			var includes = this.JavaScriptIncludes;
 			var optimisationCache = HttpContext.Current.Server.MapPath(this.CacheFolder + "/optimisation.xml");
 		}
+
+		public void updateCSSTotals(List<string> list)
+		{
+			string config = HttpContext.Current.Server.MapPath("~" + this.Root + this.CacheFolder + "/Usage.config");
+
+			XmlDocument doc = new XmlDocument();
+			doc.Load(config);
+
+			int total = Convert.ToInt32(doc.SelectSingleNode("//css").Attributes["total"].Value);
+			doc.SelectSingleNode("//css").Attributes["total"].Value = (total + 1).ToString();
+
+			foreach (string item in list)
+			{
+				string clean = item.Replace(HttpContext.Current.Server.MapPath("~"), "").Replace("/", "-");
+				var node = doc.SelectSingleNode("//css/file[@name='" + clean + "']");
+				if (node == null)
+				{
+					XmlElement newnode = doc.CreateElement("file");
+					newnode.SetAttribute("name", clean);
+					newnode.InnerText = "1";
+					doc.SelectSingleNode("//css").AppendChild(newnode);
+				}
+				else
+				{
+					int count = Convert.ToInt32(node.InnerText);
+					node.InnerText = (count + 1).ToString();
+				}
+			}
+
+			doc.Save(config);
+		}
+
+		public void updateJavaScriptTotals(List<string> list)
+		{
+			string config = HttpContext.Current.Server.MapPath("~" + this.Root + this.CacheFolder + "/Usage.config");
+
+			XmlDocument doc = new XmlDocument();
+			doc.Load(config);
+
+			int total = Convert.ToInt32(doc.SelectSingleNode("//javascript").Attributes["total"].Value);
+			doc.SelectSingleNode("//javascript").Attributes["total"].Value = (total + 1).ToString();
+
+			foreach (string item in list)
+			{
+				string clean = item.Replace(HttpContext.Current.Server.MapPath("~"), "").Replace("/", "-");
+				var node = doc.SelectSingleNode("//javascript/file[@name='" + clean + "']");
+				if (node == null)
+				{
+					XmlElement newnode = doc.CreateElement("file");
+					newnode.SetAttribute("name", clean);
+					newnode.InnerText = "1";
+					doc.SelectSingleNode("//javascript").AppendChild(newnode);
+				}
+				else
+				{
+					int count = Convert.ToInt32(node.InnerText);
+					node.InnerText = (count + 1).ToString();
+				}
+			}
+
+			doc.Save(config);
+		}
+
 	}
 
 	#endregion
@@ -292,6 +355,8 @@ namespace Packager
 				if (!uniques.Contains(mapped)) uniques.Add(mapped);
 			}
 
+			packager.updateCSSTotals(uniques);
+
 			if (packager.Debug)
 			{
 				string root = HttpContext.Current.Server.MapPath("~");
@@ -353,6 +418,8 @@ namespace Packager
 				string mapped = HttpContext.Current.Server.MapPath("~" + src);
 				if (!uniques.Contains(mapped)) uniques.Add(mapped);
 			}
+
+			packager.updateJavaScriptTotals(uniques);
 
 			if (packager.Debug)
 			{
