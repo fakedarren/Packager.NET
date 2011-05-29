@@ -51,6 +51,7 @@
     <Compile Include="Packager.Core.cs" />
     <Compile Include="Packager.Parser.cs" />
     <Compile Include="Packager.Sorter.cs" />
+    <Compile Include="Packager.Utilities.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Yaml\CodeLib\Pair.cs" />
     <Compile Include="Yaml\CodeLib\StringHelper.cs" />

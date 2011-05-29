@@ -4,170 +4,170 @@ using System.Collections.Generic;
 namespace Packager
 {
 
-	public class Sorter
-	{
-		public int[] result;
-		public List<string> Sorted = new List<string>();
+    public class Sorter
+    {
+        public int[] result;
+        public List<string> Sorted = new List<string>();
 
-		public Sorter(Dictionary<string, Asset> assets)
-		{
-			List<PackagerAsset> list = new List<PackagerAsset>();
+        public Sorter(Dictionary<string, Asset> assets)
+        {
+            List<PackagerAsset> list = new List<PackagerAsset>();
 
-			foreach (Asset asset in assets.Values)
-			{
-				foreach (string provides in asset.Provides)
-				{
-					list.Add(new PackagerAsset()
-					{
-						Name = asset.Name,
-						Provides = provides,
-						Requires = asset.Requires.ToArray()
-					});
-				}
-			}
-			
-			this.GenericSorter(list);
-			
-			foreach (int i in this.result)
-			{
-				if (!Sorted.Contains(list[i].Name))
-				{
-					Sorted.Add(list[i].Name);
-				}
-			}
-		}
+            foreach (Asset asset in assets.Values)
+            {
+                foreach (string provides in asset.Provides)
+                {
+                    list.Add(new PackagerAsset()
+                    {
+                        Name = asset.Name,
+                        Provides = provides,
+                        Requires = asset.Requires.ToArray()
+                    });
+                }
+            }
 
-		public void GenericSorter(List<PackagerAsset> assets)
-		{
-			Dictionary<string, int> indexes = new Dictionary<string, int>();
-			TopologicalSorter sorter = new TopologicalSorter(assets.Count);
+            this.GenericSorter(list);
 
-			for (int i = 0; i < assets.Count; i++)
-			{
-				indexes[assets[i].Provides.ToLower()] = sorter.AddVertex(i);
-			}
-			for (int i = 0; i < assets.Count; i++)
-			{
-				if (assets[i].Requires != null)
-				{
-					for (int j = 0; j < assets[i].Requires.Length; j++)
-					{
-						sorter.AddEdge(i, indexes[assets[i].Requires[j].ToLower()]);
-					}
-				}
-			}
+            foreach (int i in this.result)
+            {
+                if (!Sorted.Contains(list[i].Name))
+                {
+                    Sorted.Add(list[i].Name);
+                }
+            }
+        }
 
-			int[] result = sorter.Sort();
-			int[] reversed = new int[result.Length];
-			for (int i = 0; i < result.Length; i++)
-			{
-				reversed[i] = result[result.Length - i - 1];
-			}
-			this.result = reversed;
-		}
+        public void GenericSorter(List<PackagerAsset> assets)
+        {
+            Dictionary<string, int> indexes = new Dictionary<string, int>();
+            TopologicalSorter sorter = new TopologicalSorter(assets.Count);
 
-		public class PackagerAsset
-		{
-			public string Name { get; set; }
-			public string Provides { get; set; }
-			public string[] Requires { get; set; }
-		}
-	}
+            for (int i = 0; i < assets.Count; i++)
+            {
+                indexes[assets[i].Provides.ToLower()] = sorter.AddVertex(i);
+            }
+            for (int i = 0; i < assets.Count; i++)
+            {
+                if (assets[i].Requires != null)
+                {
+                    for (int j = 0; j < assets[i].Requires.Length; j++)
+                    {
+                        sorter.AddEdge(i, indexes[assets[i].Requires[j].ToLower()]);
+                    }
+                }
+            }
 
-	/// <summary>
-	/// Taken from http://tawani.blogspot.com/2009/02/topological-sorting-and-cyclic.html
-	/// </summary>
-	class TopologicalSorter
-	{
-		private int[] vertices;
-		private int[,] matrix;
-		private int numberOfVertices;
-		private int[] sortedArray;
+            int[] result = sorter.Sort();
+            int[] reversed = new int[result.Length];
+            for (int i = 0; i < result.Length; i++)
+            {
+                reversed[i] = result[result.Length - i - 1];
+            }
+            this.result = reversed;
+        }
 
-		public TopologicalSorter(int size)
-		{
-			vertices = new int[size];
-			this.matrix = new int[size, size];
-			this.numberOfVertices = 0;
-			for (int i = 0; i < size; i++)
-				for (int j = 0; j < size; j++)
-					this.matrix[i, j] = 0;
-			sortedArray = new int[size];
-		}
+        public class PackagerAsset
+        {
+            public string Name { get; set; }
+            public string Provides { get; set; }
+            public string[] Requires { get; set; }
+        }
+    }
 
-		public int AddVertex(int vertex)
-		{
-			vertices[this.numberOfVertices++] = vertex;
-			return this.numberOfVertices - 1;
-		}
+    /// <summary>
+    /// Taken from http://tawani.blogspot.com/2009/02/topological-sorting-and-cyclic.html
+    /// </summary>
+    class TopologicalSorter
+    {
+        private int[] vertices;
+        private int[,] matrix;
+        private int numberOfVertices;
+        private int[] sortedArray;
 
-		public void AddEdge(int start, int end)
-		{
-			this.matrix[start, end] = 1;
-		}
+        public TopologicalSorter(int size)
+        {
+            vertices = new int[size];
+            this.matrix = new int[size, size];
+            this.numberOfVertices = 0;
+            for (int i = 0; i < size; i++)
+                for (int j = 0; j < size; j++)
+                    this.matrix[i, j] = 0;
+            sortedArray = new int[size];
+        }
 
-		public int[] Sort()
-		{
-			while (this.numberOfVertices > 0)
-			{
-				int currentVertex = noSuccessors();
-				if (currentVertex == -1)
-					throw new Exception("Graph has cycles");
+        public int AddVertex(int vertex)
+        {
+            vertices[this.numberOfVertices++] = vertex;
+            return this.numberOfVertices - 1;
+        }
 
-				sortedArray[this.numberOfVertices - 1] = vertices[currentVertex];
+        public void AddEdge(int start, int end)
+        {
+            this.matrix[start, end] = 1;
+        }
 
-				deleteVertex(currentVertex);
-			}
+        public int[] Sort()
+        {
+            while (this.numberOfVertices > 0)
+            {
+                int currentVertex = noSuccessors();
+                if (currentVertex == -1)
+                    throw new Exception("Graph has cycles");
 
-			return sortedArray;
-		}
+                sortedArray[this.numberOfVertices - 1] = vertices[currentVertex];
 
-		private int noSuccessors()
-		{
-			for (int row = 0; row < this.numberOfVertices; row++)
-			{
-				bool isEdge = false;
-				for (int col = 0; col < this.numberOfVertices; col++)
-				{
-					if (this.matrix[row, col] > 0)
-					{
-						isEdge = true;
-						break;
-					}
-				}
-				if (!isEdge)
-					return row;
-			}
-			return -1;
-		}
+                deleteVertex(currentVertex);
+            }
 
-		private void deleteVertex(int vertexToDelete)
-		{
-			if (vertexToDelete != this.numberOfVertices - 1)
-			{
-				for (int j = vertexToDelete; j < this.numberOfVertices - 1; j++)
-					vertices[j] = vertices[j + 1];
+            return sortedArray;
+        }
 
-				for (int row = vertexToDelete; row < this.numberOfVertices - 1; row++)
-					moveRowUp(row, this.numberOfVertices);
+        private int noSuccessors()
+        {
+            for (int row = 0; row < this.numberOfVertices; row++)
+            {
+                bool isEdge = false;
+                for (int col = 0; col < this.numberOfVertices; col++)
+                {
+                    if (this.matrix[row, col] > 0)
+                    {
+                        isEdge = true;
+                        break;
+                    }
+                }
+                if (!isEdge)
+                    return row;
+            }
+            return -1;
+        }
 
-				for (int col = vertexToDelete; col < this.numberOfVertices - 1; col++)
-					moveColLeft(col, this.numberOfVertices - 1);
-			}
-			this.numberOfVertices--;
-		}
+        private void deleteVertex(int vertexToDelete)
+        {
+            if (vertexToDelete != this.numberOfVertices - 1)
+            {
+                for (int j = vertexToDelete; j < this.numberOfVertices - 1; j++)
+                    vertices[j] = vertices[j + 1];
 
-		private void moveRowUp(int row, int length)
-		{
-			for (int col = 0; col < length; col++)
-				this.matrix[row, col] = this.matrix[row + 1, col];
-		}
+                for (int row = vertexToDelete; row < this.numberOfVertices - 1; row++)
+                    moveRowUp(row, this.numberOfVertices);
 
-		private void moveColLeft(int col, int length)
-		{
-			for (int row = 0; row < length; row++)
-				this.matrix[row, col] = this.matrix[row, col + 1];
-		}
-	}
+                for (int col = vertexToDelete; col < this.numberOfVertices - 1; col++)
+                    moveColLeft(col, this.numberOfVertices - 1);
+            }
+            this.numberOfVertices--;
+        }
+
+        private void moveRowUp(int row, int length)
+        {
+            for (int col = 0; col < length; col++)
+                this.matrix[row, col] = this.matrix[row + 1, col];
+        }
+
+        private void moveColLeft(int col, int length)
+        {
+            for (int row = 0; row < length; row++)
+                this.matrix[row, col] = this.matrix[row, col + 1];
+        }
+    }
 
 }
