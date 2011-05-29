@@ -51,6 +51,20 @@ namespace Packager
     public class CSS : Asset
     {
         public string Href { get; set; }
+		public new string Path
+		{
+			get
+			{
+				return Href;
+			}
+		}
+		public new string MappedPath
+		{
+			get
+			{
+				return HttpContext.Current.Server.MapPath("~" + this.Href);
+			}
+		}
 
 		private string compressedContent = String.Empty;
 		public string CompressedContent
@@ -75,6 +89,20 @@ namespace Packager
     public class Script : Asset
     {
         public string Src { get; set; }
+		public new string Path
+		{
+			get
+			{
+				return Src;
+			}
+		}
+		public new string MappedPath
+		{
+			get
+			{
+				return HttpContext.Current.Server.MapPath("~" + this.Src);
+			}
+		}
 
 		private string compressedContent = String.Empty;
 		public string CompressedContent
@@ -99,12 +127,6 @@ namespace Packager
 
     public class StyleSheetCollection : List<CSS> { }
     public class ScriptFileCollection : List<Script> { }
-
-    #endregion
-
-
-    #region Helper functions
-
 
     #endregion
 
@@ -185,11 +207,32 @@ namespace Packager
     public class CSSHolder : HtmlContainerControl
     {
         public List<CSS> stylesheets = new List<CSS>();
-        public List<Asset> allAssets = new List<Asset>();
+		public Dictionary<string, Asset> allStylesheets = new Dictionary<string, Asset>();
 
         protected override void Render(HtmlTextWriter writer)
         {
-            PackagerHelper packager = new PackagerHelper();
+			if (!Config.Loaded) Config.Load();
+
+			foreach (CSS stylesheet in stylesheets)
+			{
+				var asset = new Asset()
+				{
+					Path = stylesheet.Path
+				};
+				Utilities.ParseAsset(ref asset);
+				allStylesheets.Add(asset.Path, asset);
+			}
+
+			Utilities.GetAllDependencies(ref allStylesheets, "CSS");
+
+			var sorter = new Sorter(allStylesheets);
+
+			foreach (string path in sorter.Sorted)
+			{
+				HttpContext.Current.Response.Write(path + "<br />");
+			}
+            /*
+			PackagerHelper packager = new PackagerHelper();
             Parser parser = new Parser();
 
             Dictionary<string, Asset> includes = new Dictionary<string, Asset>();
@@ -241,16 +284,38 @@ namespace Packager
                     writer.Write("\n<link href='" + packager.Root + packager.CacheFolder + "/" + hash + ".css' type='text/css' rel='stylesheet' media='screen' />");
                 }
             }
+			*/
         }
     }
 
     public class ScriptHolder : HtmlContainerControl
     {
         public List<Script> scripts = new List<Script>();
-        public List<Asset> allAssets = new List<Asset>();
+		public Dictionary<string, Asset> allScripts = new Dictionary<string, Asset>();
 
         protected override void Render(HtmlTextWriter writer)
         {
+			if (!Config.Loaded) Config.Load();
+
+			foreach (Script script in scripts)
+			{
+				var asset = new Asset()
+				{
+					Path = script.Path
+				};
+				Utilities.ParseAsset(ref asset);
+				allScripts.Add(asset.Path, asset);
+			}
+
+			Utilities.GetAllDependencies(ref allScripts, "Script");
+
+			var sorter = new Sorter(allScripts);
+
+			foreach (string path in sorter.Sorted)
+			{
+				HttpContext.Current.Response.Write(path + "<br />");
+			}
+			/*
             PackagerHelper packager = new PackagerHelper();
             Parser parser = new Parser();
 
@@ -308,6 +373,7 @@ namespace Packager
                     writer.Write("\n<script src='" + packager.Root + packager.CacheFolder + "/" + hash + ".js' type='text/javascript'></script>");
                 }
             }
+			 */ 
         }
     }
 

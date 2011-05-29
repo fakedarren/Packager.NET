@@ -25,6 +25,8 @@ namespace Packager
 
 		public static void Load()
 		{
+			Loaded = true;
+
 			var configPath = HttpContext.Current.Server.MapPath("~/Configuration/Packager.config");
 			ConfigurationFile.Load(configPath);
 
@@ -42,8 +44,6 @@ namespace Packager
 
 			FetchScripts();
 			FetchStylesheets();
-
-			Loaded = true;
 		}
 
 		public static void FetchScripts()

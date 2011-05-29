@@ -11,15 +11,15 @@ namespace Packager
 
         public Sorter(Dictionary<string, Asset> assets)
         {
-            List<PackagerAsset> list = new List<PackagerAsset>();
+			List<SortableAsset> list = new List<SortableAsset>();
 
             foreach (Asset asset in assets.Values)
             {
                 foreach (string provides in asset.Provides)
                 {
-                    list.Add(new PackagerAsset()
+					list.Add(new SortableAsset()
                     {
-                        Name = asset.Name,
+                        Name = asset.Path,
                         Provides = provides,
                         Requires = asset.Requires.ToArray()
                     });
@@ -37,7 +37,7 @@ namespace Packager
             }
         }
 
-        public void GenericSorter(List<PackagerAsset> assets)
+		public void GenericSorter(List<SortableAsset> assets)
         {
             Dictionary<string, int> indexes = new Dictionary<string, int>();
             TopologicalSorter sorter = new TopologicalSorter(assets.Count);
@@ -66,7 +66,7 @@ namespace Packager
             this.result = reversed;
         }
 
-        public class PackagerAsset
+        public class SortableAsset
         {
             public string Name { get; set; }
             public string Provides { get; set; }
