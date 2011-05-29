@@ -21,8 +21,10 @@ namespace Packager
     {
         public string Name;
         public string Description;
+
         public List<string> Requires = new List<string>();
         public List<string> Provides = new List<string>();
+
         public string Path;
         public string MappedPath
         {
@@ -31,16 +33,69 @@ namespace Packager
                 return HttpContext.Current.Server.MapPath("~" + this.Path);
             }
         }
+
+		private string uncompressedContent = String.Empty;
+		public string UncompressedContent
+		{
+			get
+			{
+				if (uncompressedContent == String.Empty)
+				{
+					uncompressedContent = File.ReadAllText(MappedPath);
+				}
+				return uncompressedContent;
+			}
+		}
     }
 
     public class CSS : Asset
     {
         public string Href { get; set; }
-    }
+
+		private string compressedContent = String.Empty;
+		public string CompressedContent
+		{
+			get
+			{
+				string returnValue = "";
+				if (compressedContent == String.Empty)
+				{
+					var content = File.ReadAllText(MappedPath);
+					try { compressedContent = CssCompressor.Compress(content); }
+					catch { compressedContent = content; }
+				}
+				else
+				{
+					returnValue = compressedContent;
+				}
+				return returnValue;
+			}
+		}
+	}
     public class Script : Asset
     {
         public string Src { get; set; }
-    }
+
+		private string compressedContent = String.Empty;
+		public string CompressedContent
+		{
+			get
+			{
+				string returnValue = "";
+				if (compressedContent == String.Empty)
+				{
+					var content = File.ReadAllText(MappedPath);
+					try { compressedContent = JavaScriptCompressor.Compress(content); }
+					catch { compressedContent = content; }
+				}
+				else
+				{
+					returnValue = compressedContent;
+				}
+				return returnValue;
+			}
+		}
+	}
 
     public class StyleSheetCollection : List<CSS> { }
     public class ScriptFileCollection : List<Script> { }
