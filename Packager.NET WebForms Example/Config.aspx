@@ -1,1 +1,8 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeFile="Config.aspx.cs" Inherits="Config" %>
+﻿<%@ Page Language="C#" %>
+<%
+if (!Packager.Config.Loaded)
+{
+	Packager.Config.Load();
+}
+Packager.Config.Log();
+%>
