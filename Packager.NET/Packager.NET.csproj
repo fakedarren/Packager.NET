@@ -48,6 +48,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Packager.Config.cs" />
     <Compile Include="Packager.Core.cs" />
     <Compile Include="Packager.Parser.cs" />
     <Compile Include="Packager.Sorter.cs" />
