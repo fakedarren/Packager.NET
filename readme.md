@@ -1,5 +1,5 @@
-Packager.NET 1.0 beta 1
-=======================
+Packager.NET 1.1
+================
 
 A sort-of port of Packager as used by MooTools for .NET Webforms.
 
@@ -48,31 +48,6 @@ Packager will then automatically parse the YAML headers of the files and pull in
  * Compress: CSS and JavaScript will be minified (using the YUI minifier) if this is set to 'true'
  * Optimise: Currently this doesn't do anything but see below ('planned automatic optimisation')
  * You obviously then have your packages.
- 
-
-## Planned Automatic Optimisation
-
-This is currently in alpha and seems to be working OK! The idea is, that if you have a large site with multiple collections of dependencies,
-having a different file for each page (even if compressed) is not efficient.
-
-The plan is to record each page's requirements. If a requirement is included on a percentage of pages (say at least 40%) it will be included in
-a single cacheable file that will be included on every page.
-
-In this way, the first hit to a site will cache the majority of requirements for the entire site. Less common includes (say you have a gallery on
-just a single page) will be served compressed as and when required.
-
-This will be configurable, automated with the option to manually administer, and can be disabled for deployment to live environments (with cached
- / saved settings).
-
-This feature will be available in the second beta!
-
-
-## Planned Development Timescales
-
-We're using this in a project at work currently so I expect any bugs to be ironed out soon. It's currently in the 'make it work' phase; next
-phase is 'make it elegant'; final phase is 'make it fast'.
-
-I expect to release two more betas in the coming weeks, with a Release Candidate early 2011.
 
 
 ## How To Help
