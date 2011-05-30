@@ -14,9 +14,9 @@ namespace Packager
         public static XmlDocument ConfigurationFile = new XmlDocument();
 		public static XmlNode ConfigurationSettings;
 
-		public static bool DebugMode;
-		public static bool Compress;
-		public static bool Optimise;
+		public static bool DebugMode = true;
+		public static bool Compress = false;
+		public static bool Optimise = false;
 		public static string CacheFolder = "/Cache";
 		public static string RootFolder = "";
 
