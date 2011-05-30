@@ -7,3 +7,9 @@ provides: [App]
 
 ...
 */
+
+if (window.console && console.log) {
+	console.log('JS loaded');
+} else {
+	alert('JS loaded');
+}
