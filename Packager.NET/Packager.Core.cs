@@ -275,16 +275,19 @@ namespace Packager
 					output += (Config.Compress == true ? cachedAsset.CompressedContent : cachedAsset.UncompressedContent) + "\r\n";
 				}
 
-				string hash = Utilities.CreateMD5Hash(output);
-				string target = HttpContext.Current.Server.MapPath("/" + Config.RootFolder + Config.CacheFolder + "/" + hash + ".css");
-				if (!File.Exists(target))
+				if (output.Length > 0)
 				{
-					TextWriter textwriter = new StreamWriter(target);
-					textwriter.Write(output);
-					textwriter.Close();
-				}
+					string hash = Utilities.CreateMD5Hash(output);
+					string target = HttpContext.Current.Server.MapPath("/" + Config.RootFolder + Config.CacheFolder + "/" + hash + ".css");
+					if (!File.Exists(target))
+					{
+						TextWriter textwriter = new StreamWriter(target);
+						textwriter.Write(output);
+						textwriter.Close();
+					}
 
-				writer.Write("\n<link href='" + Config.RootFolder + Config.CacheFolder + "/" + hash + ".css' type='text/css' rel='stylesheet' media='screen' />");
+					writer.Write("\n<link href='" + Config.RootFolder + Config.CacheFolder + "/" + hash + ".css' type='text/css' rel='stylesheet' media='screen' />");
+				}
 			}
         }
     }
@@ -337,16 +340,19 @@ namespace Packager
 					output += (Config.Compress == true ? cachedAsset.CompressedContent : cachedAsset.UncompressedContent) + "\r\n";
 				}
 
-				string hash = Utilities.CreateMD5Hash(output);
-				string target = HttpContext.Current.Server.MapPath("/" + Config.RootFolder + Config.CacheFolder + "/" + hash + ".js");
-				if (!File.Exists(target))
+				if (output.Length > 0)
 				{
-					TextWriter textwriter = new StreamWriter(target);
-					textwriter.Write(output);
-					textwriter.Close();
-				}
+					string hash = Utilities.CreateMD5Hash(output);
+					string target = HttpContext.Current.Server.MapPath("/" + Config.RootFolder + Config.CacheFolder + "/" + hash + ".js");
+					if (!File.Exists(target))
+					{
+						TextWriter textwriter = new StreamWriter(target);
+						textwriter.Write(output);
+						textwriter.Close();
+					}
 
-				writer.Write("\n<script src='" + Config.RootFolder + Config.CacheFolder + "/" + hash + ".js' type='text/javascript'></script>");
+					writer.Write("\n<script src='" + Config.RootFolder + Config.CacheFolder + "/" + hash + ".js' type='text/javascript'></script>");
+				}
 			}
         }
     }
