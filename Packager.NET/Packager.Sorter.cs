@@ -11,18 +11,19 @@ namespace Packager
 
         public Sorter(Dictionary<string, Asset> assets)
         {
-			List<SortableAsset> list = new List<SortableAsset>();
+			List<Asset> list = new List<Asset>();
 
             foreach (Asset asset in assets.Values)
             {
                 foreach (string provides in asset.Provides)
                 {
-					list.Add(new SortableAsset()
+					var newAsset = new Asset()
                     {
-                        Name = asset.Path,
-                        Provides = provides,
-                        Requires = asset.Requires.ToArray()
-                    });
+                        Name = asset.Path
+                    };
+					newAsset.Provides.Add(provides);
+					newAsset.Requires.AddRange(asset.Requires);
+					list.Add(newAsset);
                 }
             }
 
@@ -37,20 +38,20 @@ namespace Packager
             }
         }
 
-		public void GenericSorter(List<SortableAsset> assets)
+		public void GenericSorter(List<Asset> assets)
         {
             Dictionary<string, int> indexes = new Dictionary<string, int>();
             TopologicalSorter sorter = new TopologicalSorter(assets.Count);
 
             for (int i = 0; i < assets.Count; i++)
             {
-                indexes[assets[i].Provides.ToLower()] = sorter.AddVertex(i);
+                indexes[assets[i].Provides[0].ToLower()] = sorter.AddVertex(i);
             }
             for (int i = 0; i < assets.Count; i++)
             {
                 if (assets[i].Requires != null)
                 {
-                    for (int j = 0; j < assets[i].Requires.Length; j++)
+                    for (int j = 0; j < assets[i].Requires.Count; j++)
                     {
                         sorter.AddEdge(i, indexes[assets[i].Requires[j].ToLower()]);
                     }
@@ -65,15 +66,8 @@ namespace Packager
             }
             this.result = reversed;
         }
-
-        public class SortableAsset
-        {
-            public string Name { get; set; }
-            public string Provides { get; set; }
-            public string[] Requires { get; set; }
-        }
     }
-
+	
     /// <summary>
     /// Taken from http://tawani.blogspot.com/2009/02/topological-sorting-and-cyclic.html
     /// </summary>
