@@ -12,49 +12,80 @@ namespace Packager
 {
 	public static class Utilities
 	{
-        /// <summary>
-        /// Returns a list of all filenames in a particular folder, and recursively parses all its children.
-        /// </summary>
-        /// <param name="folder">The (mapped) path to list</param>
-        /// <returns>A list of files in the directory</returns>
-        public static List<string> GetAllFilesInFolder(string folder)
-        {
-            var files = new List<string>();
-            var stack = new Stack<string>();
-            stack.Push(folder);
-            while (stack.Count > 0)
-            {
-                string directory = stack.Pop();
-                try
-                {
-					files.AddRange(Directory.GetFiles(directory, "*.*"));
-                    foreach (string directoryname in Directory.GetDirectories(directory))
-                    {
-                        stack.Push(directoryname);
-                    }
-                }
-                catch { throw new Exception("Packager: Could not find directory " + directory + " to parse recursively."); }
-            }
-			return files;
-        }
+		public static string GetSafePath(string root, string folder)
+		{
+			string safePath = "";
 
-        /// <summary>
-        /// Creates a hash, used as the file name to cache any one set of assets
-        /// </summary>
-        /// <param name="input">The content to hash</param>
-        /// <returns>An MD5 Hash filename (without the extension)</returns>
+			if (Directory.Exists(root + folder))
+			{
+				safePath = root + folder;
+			}
+			else
+			{
+				safePath = HttpContext.Current.Server.MapPath("~" + folder);
+				if (!Cached.VirtualDirectoryPathMap.ContainsKey(safePath))
+				{
+					Cached.VirtualDirectoryPathMap.Add(safePath, folder);
+				}
+			}
+
+			return safePath;
+		}
+
+		public static string GetOriginalPath(string path)
+		{
+			foreach (string realpath in Cached.VirtualDirectoryPathMap.Keys)
+			{
+				path = path.Replace(realpath, Cached.VirtualDirectoryPathMap[realpath]);
+			}
+			var root = HttpContext.Current.Server.MapPath("~");
+			path = path.Replace(root, "").Replace(@"\", "/");
+			return path;
+		}
+
+		/// <summary>
+		/// Returns a list of all filenames in a particular folder, and recursively parses all its children.
+		/// </summary>
+		/// <param name="folder">The (mapped) path to list</param>
+		/// <returns>A list of files in the directory</returns>
+		public static List<string> GetAllFilesInFolder(string folder)
+		{
+			var files = new List<string>();
+			var stack = new Stack<string>();
+			stack.Push(folder);
+			while (stack.Count > 0)
+			{
+				string directory = stack.Pop();
+				try
+				{
+					files.AddRange(Directory.GetFiles(directory, "*.*"));
+					foreach (string directoryname in Directory.GetDirectories(directory))
+					{
+						stack.Push(directoryname);
+					}
+				}
+				catch { throw new Exception("Packager: Could not find directory " + directory + " to parse recursively."); }
+			}
+			return files;
+		}
+
+		/// <summary>
+		/// Creates a hash, used as the file name to cache any one set of assets
+		/// </summary>
+		/// <param name="input">The content to hash</param>
+		/// <returns>An MD5 Hash filename (without the extension)</returns>
 		public static string CreateMD5Hash(string input)
-        {
-            MD5 md5 = MD5.Create();
-            byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(input);
-            byte[] hashBytes = md5.ComputeHash(inputBytes);
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < hashBytes.Length; i++)
-            {
-                sb.Append(hashBytes[i].ToString("X2"));
-            }
-            return sb.ToString();
-        }
+		{
+			MD5 md5 = MD5.Create();
+			byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(input);
+			byte[] hashBytes = md5.ComputeHash(inputBytes);
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < hashBytes.Length; i++)
+			{
+				sb.Append(hashBytes[i].ToString("X2"));
+			}
+			return sb.ToString();
+		}
 
 		/// <summary>
 		/// Parses an asset's YAML header and updates its Requires / Provides properties
@@ -189,5 +220,5 @@ namespace Packager
 			}
 			if (recurse == true) GetAllDependencies(ref assets, type);
 		}
-    }
+	}
 }

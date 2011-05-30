@@ -7,11 +7,11 @@ using System.Xml;
 
 namespace Packager
 {
-    public static class Config
-    {
+	public static class Config
+	{
 		public static bool Loaded = false;
 
-        public static XmlDocument ConfigurationFile = new XmlDocument();
+		public static XmlDocument ConfigurationFile = new XmlDocument();
 		public static XmlNode ConfigurationSettings;
 
 		public static bool DebugMode = true;
@@ -20,8 +20,8 @@ namespace Packager
 		public static string CacheFolder = "/Cache";
 		public static string RootFolder = "";
 
-		public static List<Asset> Scripts = new List<Asset>();
-		public static List<Asset> Stylesheets = new List<Asset>();
+		public static List<Asset> Scripts;
+		public static List<Asset> Stylesheets;
 
 		public static void Load()
 		{
@@ -32,7 +32,7 @@ namespace Packager
 
 			var domain = AppDomain.CurrentDomain.FriendlyName;
 
-			ConfigurationSettings = ConfigurationFile.SelectSingleNode("//configuration[@domain=" + domain + "]");
+			//ConfigurationSettings = ConfigurationFile.SelectSingleNode("//configuration[@domain=" + domain + "]");
 			if (ConfigurationSettings == null) ConfigurationSettings = ConfigurationFile.SelectSingleNode("//configuration");
 
 			DebugMode = Convert.ToBoolean(ConfigurationSettings.SelectSingleNode("//debug").InnerText);
@@ -48,15 +48,18 @@ namespace Packager
 
 		public static void FetchScripts()
 		{
+			Scripts = new List<Asset>();
 			foreach (XmlNode script in ConfigurationSettings.SelectSingleNode("//javascript").ChildNodes)
 			{
 				var root = HttpContext.Current.Server.MapPath("~");
 				var folder = script.InnerText;
-				foreach (string file in Utilities.GetAllFilesInFolder(root + folder))
+				var safePath = Utilities.GetSafePath(root, folder);
+
+				foreach (string file in Utilities.GetAllFilesInFolder(safePath))
 				{
 					var asset = new Asset()
 					{
-						Path = file.Replace(root, "").Replace(@"\", "/")
+						Path = Utilities.GetOriginalPath(file)
 					};
 					Utilities.ParseAsset(ref asset);
 					Scripts.Add(asset);
@@ -66,15 +69,18 @@ namespace Packager
 
 		public static void FetchStylesheets()
 		{
+			Stylesheets = new List<Asset>();
 			foreach (XmlNode stylesheet in ConfigurationSettings.SelectSingleNode("//css").ChildNodes)
 			{
 				var root = HttpContext.Current.Server.MapPath("~");
 				var folder = stylesheet.InnerText;
-				foreach(string file in Utilities.GetAllFilesInFolder(root + folder))
+				var safePath = Utilities.GetSafePath(root, folder);
+
+				foreach (string file in Utilities.GetAllFilesInFolder(safePath))
 				{
 					var asset = new Asset()
 					{
-						Path = file.Replace(root, "").Replace(@"\", "/")
+						Path = Utilities.GetOriginalPath(file)
 					};
 					Utilities.ParseAsset(ref asset);
 					Stylesheets.Add(asset);
@@ -95,6 +101,7 @@ namespace Packager
 			response.Write("<li>Cache Folder: " + CacheFolder + "</li>");
 			response.Write("<li>JavaScript Assets Registered: " + Scripts.Count + "</li>");
 			response.Write("<li>Stylesheet Assets Registered: " + Stylesheets.Count + "</li>");
+			response.Write("<li>Virtual Directories Paths Mapped: " + Cached.VirtualDirectoryPathMap.Count + "</li>");
 			response.Write("</ul>");
 
 			response.Write("<br /><br /><br /><h2>Registered JavaScript Packages</h2>");
@@ -144,6 +151,14 @@ namespace Packager
 					response.Write("</ul>");
 				}
 			}
+
+			response.Write("<br /><br /><br /><h2>Cached Virtual Directory Maps</h2>");
+			response.Write("<ul>");
+			foreach (string safepath in Cached.VirtualDirectoryPathMap.Keys)
+			{
+				response.Write("<li>" + safepath + " => " + Cached.VirtualDirectoryPathMap[safepath] + "</li>");
+			}
+			response.Write("</ul>");
 		}
 	}
 }

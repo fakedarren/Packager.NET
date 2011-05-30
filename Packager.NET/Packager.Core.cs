@@ -15,24 +15,24 @@ using Yahoo.Yui.Compressor;
 namespace Packager
 {
 
-    #region Models
+	#region Models
 
-    public class Asset
-    {
-        public string Name;
-        public string Description;
+	public class Asset
+	{
+		public string Name;
+		public string Description;
 
-        public List<string> Requires = new List<string>();
-        public List<string> Provides = new List<string>();
+		public List<string> Requires = new List<string>();
+		public List<string> Provides = new List<string>();
 
-        public string Path;
-        public string MappedPath
-        {
-            get
-            {
-                return HttpContext.Current.Server.MapPath("~" + this.Path);
-            }
-        }
+		public string Path;
+		public string MappedPath
+		{
+			get
+			{
+				return HttpContext.Current.Server.MapPath("~" + this.Path);
+			}
+		}
 
 		private string uncompressedContent = String.Empty;
 		public string UncompressedContent
@@ -71,9 +71,9 @@ namespace Packager
 		}
 	}
 
-    public class CSS : Asset
-    {
-        public string Href { get; set; }
+	public class CSS : Asset
+	{
+		public string Href { get; set; }
 		public new string Path
 		{
 			get
@@ -104,9 +104,9 @@ namespace Packager
 			}
 		}
 	}
-    public class Script : Asset
-    {
-        public string Src { get; set; }
+	public class Script : Asset
+	{
+		public string Src { get; set; }
 		public new string Path
 		{
 			get
@@ -138,18 +138,19 @@ namespace Packager
 		}
 	}
 
-    public class StyleSheetCollection : List<CSS> { }
-    public class ScriptFileCollection : List<Script> { }
+	public class StyleSheetCollection : List<CSS> { }
+	public class ScriptFileCollection : List<Script> { }
 
-    #endregion
+	#endregion
 
 
 	#region Content Caches
 
 	public static class Cached
 	{
-		public static Dictionary<string, Asset> Stylesheets = new Dictionary<string,Asset>();
-		public static Dictionary<string, Asset> Scripts = new Dictionary<string,Asset>();
+		public static Dictionary<string, Asset> Stylesheets = new Dictionary<string, Asset>();
+		public static Dictionary<string, Asset> Scripts = new Dictionary<string, Asset>();
+		public static Dictionary<string, string> VirtualDirectoryPathMap = new Dictionary<string, string>();
 	}
 
 	#endregion
@@ -158,83 +159,83 @@ namespace Packager
 	#region Content Includes
 
 	[ParseChildren(typeof(CSS), DefaultProperty = "CSSFiles", ChildrenAsProperties = true)]
-    public class StyleSheets : WebControl
-    {
-        public StyleSheets()
-        {
-            this.CSSFiles = new StyleSheetCollection();
-        }
+	public class StyleSheets : WebControl
+	{
+		public StyleSheets()
+		{
+			this.CSSFiles = new StyleSheetCollection();
+		}
 
-        public StyleSheetCollection CSSFiles { get; private set; }
+		public StyleSheetCollection CSSFiles { get; private set; }
 
-        protected override void OnPreRender(EventArgs e)
-        {
-            if (this.Page.Master != null && this.Page.Master.FindControl("CSSPlaceholder") != null)
-            {
-                var holder = (this.Page.Master.FindControl("CSSPlaceholder") as CSSHolder);
-                this.CSSFiles.ForEach(stylesheet => holder.stylesheets.Add(stylesheet));
-            }
-            else if (this.Page.FindControl("CSSPlaceholder") != null)
-            {
-                var holder = (this.Page.FindControl("CSSPlaceholder") as CSSHolder);
-                this.CSSFiles.ForEach(stylesheet => holder.stylesheets.Add(stylesheet));
-            }
-            else
-            {
-                throw new Exception("Packager: Could not find placeholder 'CSSPlaceholder' in Page or Master Page");
-            }
-        }
+		protected override void OnPreRender(EventArgs e)
+		{
+			if (this.Page.Master != null && this.Page.Master.FindControl("CSSPlaceholder") != null)
+			{
+				var holder = (this.Page.Master.FindControl("CSSPlaceholder") as CSSHolder);
+				this.CSSFiles.ForEach(stylesheet => holder.stylesheets.Add(stylesheet));
+			}
+			else if (this.Page.FindControl("CSSPlaceholder") != null)
+			{
+				var holder = (this.Page.FindControl("CSSPlaceholder") as CSSHolder);
+				this.CSSFiles.ForEach(stylesheet => holder.stylesheets.Add(stylesheet));
+			}
+			else
+			{
+				throw new Exception("Packager: Could not find placeholder 'CSSPlaceholder' in Page or Master Page");
+			}
+		}
 
-        protected override void Render(HtmlTextWriter writer)
-        {
-        }
-    }
+		protected override void Render(HtmlTextWriter writer)
+		{
+		}
+	}
 
-    [ParseChildren(typeof(Script), DefaultProperty = "ScriptFiles", ChildrenAsProperties = true)]
-    public class Scripts : WebControl
-    {
-        public Scripts()
-        {
-            this.ScriptFiles = new ScriptFileCollection();
-        }
+	[ParseChildren(typeof(Script), DefaultProperty = "ScriptFiles", ChildrenAsProperties = true)]
+	public class Scripts : WebControl
+	{
+		public Scripts()
+		{
+			this.ScriptFiles = new ScriptFileCollection();
+		}
 
-        public ScriptFileCollection ScriptFiles { get; private set; }
+		public ScriptFileCollection ScriptFiles { get; private set; }
 
-        protected override void OnPreRender(EventArgs e)
-        {
-            if (this.Page.Master != null && this.Page.Master.FindControl("ScriptsPlaceholder") != null)
-            {
-                var holder = (this.Page.Master.FindControl("ScriptsPlaceholder") as ScriptHolder);
-                this.ScriptFiles.ForEach(script => holder.scripts.Add(script));
-            }
-            else if (this.Page.FindControl("ScriptsPlaceholder") != null)
-            {
-                var holder = (this.Page.FindControl("ScriptsPlaceholder") as ScriptHolder);
-                this.ScriptFiles.ForEach(script => holder.scripts.Add(script));
-            }
-            else
-            {
-                throw new Exception("Packager: Could not find placeholder 'ScriptsPlaceholder' in Page or Master Page");
-            }
-        }
+		protected override void OnPreRender(EventArgs e)
+		{
+			if (this.Page.Master != null && this.Page.Master.FindControl("ScriptsPlaceholder") != null)
+			{
+				var holder = (this.Page.Master.FindControl("ScriptsPlaceholder") as ScriptHolder);
+				this.ScriptFiles.ForEach(script => holder.scripts.Add(script));
+			}
+			else if (this.Page.FindControl("ScriptsPlaceholder") != null)
+			{
+				var holder = (this.Page.FindControl("ScriptsPlaceholder") as ScriptHolder);
+				this.ScriptFiles.ForEach(script => holder.scripts.Add(script));
+			}
+			else
+			{
+				throw new Exception("Packager: Could not find placeholder 'ScriptsPlaceholder' in Page or Master Page");
+			}
+		}
 
-        protected override void Render(HtmlTextWriter writer)
-        {
-        }
-    }
+		protected override void Render(HtmlTextWriter writer)
+		{
+		}
+	}
 
-    #endregion
+	#endregion
 
 
-    #region Content PlaceHolders
+	#region Content PlaceHolders
 
-    public class CSSHolder : HtmlContainerControl
-    {
-        public List<CSS> stylesheets = new List<CSS>();
+	public class CSSHolder : HtmlContainerControl
+	{
+		public List<CSS> stylesheets = new List<CSS>();
 		public Dictionary<string, Asset> allStylesheets = new Dictionary<string, Asset>();
 
-        protected override void Render(HtmlTextWriter writer)
-        {
+		protected override void Render(HtmlTextWriter writer)
+		{
 			if (!Config.Loaded || HttpContext.Current.Request["clearcache"] != null) Config.Load();
 
 			foreach (CSS stylesheet in stylesheets)
@@ -292,16 +293,16 @@ namespace Packager
 					writer.Write("\n<link href='" + Config.RootFolder + Config.CacheFolder + "/" + hash + ".css' type='text/css' rel='stylesheet' media='screen' />");
 				}
 			}
-        }
-    }
+		}
+	}
 
-    public class ScriptHolder : HtmlContainerControl
-    {
-        public List<Script> scripts = new List<Script>();
+	public class ScriptHolder : HtmlContainerControl
+	{
+		public List<Script> scripts = new List<Script>();
 		public Dictionary<string, Asset> allScripts = new Dictionary<string, Asset>();
 
-        protected override void Render(HtmlTextWriter writer)
-        {
+		protected override void Render(HtmlTextWriter writer)
+		{
 			if (!Config.Loaded || HttpContext.Current.Request["clearcache"] != null) Config.Load();
 
 			foreach (Script script in scripts)
@@ -360,9 +361,9 @@ namespace Packager
 					writer.Write("\n<script src='" + Config.RootFolder + Config.CacheFolder + "/" + hash + ".js' type='text/javascript'></script>");
 				}
 			}
-        }
-    }
+		}
+	}
 
-    #endregion
+	#endregion
 
 }
