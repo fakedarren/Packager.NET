@@ -244,7 +244,10 @@ namespace Packager
 					Path = stylesheet.Path
 				};
 				Utilities.ParseAsset(ref asset);
-				allStylesheets.Add(asset.Path, asset);
+				if (!allStylesheets.ContainsKey(asset.Path))
+				{
+					allStylesheets.Add(asset.Path, asset);
+				}
 			}
 
 			Utilities.GetAllDependencies(ref allStylesheets, "CSS");
@@ -308,7 +311,10 @@ namespace Packager
 					Path = script.Path
 				};
 				Utilities.ParseAsset(ref asset);
-				allScripts.Add(asset.Path, asset);
+				if (!allScripts.ContainsKey(asset.Path))
+				{
+					allScripts.Add(asset.Path, asset);
+				}
 			}
 
 			Utilities.GetAllDependencies(ref allScripts, "Script");
