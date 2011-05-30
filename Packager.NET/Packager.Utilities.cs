@@ -56,6 +56,10 @@ namespace Packager
             return sb.ToString();
         }
 
+		/// <summary>
+		/// Parses an asset's YAML header and updates its Requires / Provides properties
+		/// </summary>
+		/// <param name="asset">A reference to an Asset object</param>
 		public static void ParseAsset(ref Asset asset)
 		{
 			var yaml = Utilities.FetchYAMLFromFile(asset.MappedPath);
@@ -98,6 +102,10 @@ namespace Packager
 			}
 		}
 
+		/// <summary>
+		/// Returns a file's YAML header
+		/// </summary>
+		/// <param name="file">A mapped file path</param>
 		public static string FetchYAMLFromFile(string file)
 		{
 			string yaml = "";
@@ -133,6 +141,11 @@ namespace Packager
 			return yaml;
 		}
 
+		/// <summary>
+		/// Recursive function to return an Asset list, containing all dependencies
+		/// </summary>
+		/// <param name="assets">The collection of Assets to resolve dependencies for</param>
+		/// <param name="type">The asset collection type; either 'CSS' or 'Script'</param>
 		public static void GetAllDependencies(ref Dictionary<string, Asset> assets, string type)
 		{
 			var newAssets = new Dictionary<string, Asset>();
