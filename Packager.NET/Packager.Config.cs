@@ -46,6 +46,9 @@ namespace Packager
 
 			FetchScripts();
 			FetchStylesheets();
+
+			Cached.Scripts = new Dictionary<string, Asset>();
+			Cached.Stylesheets = new Dictionary<string, Asset>();
 		}
 
 		public static void FetchScripts()
