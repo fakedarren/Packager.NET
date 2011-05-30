@@ -30,9 +30,9 @@ namespace Packager
 			var configPath = HttpContext.Current.Server.MapPath("~/Configuration/Packager.config");
 			ConfigurationFile.Load(configPath);
 
-			var domain = AppDomain.CurrentDomain.FriendlyName;
+			var domain = HttpContext.Current.Request.Url.Host.ToString();
 
-			//ConfigurationSettings = ConfigurationFile.SelectSingleNode("//configuration[@domain=" + domain + "]");
+			ConfigurationSettings = ConfigurationFile.SelectSingleNode("//configuration[@domain=" + domain + "]");
 			if (ConfigurationSettings == null) ConfigurationSettings = ConfigurationFile.SelectSingleNode("//configuration");
 
 			DebugMode = Convert.ToBoolean(ConfigurationSettings.SelectSingleNode("//debug").InnerText);
