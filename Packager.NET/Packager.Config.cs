@@ -49,6 +49,7 @@ namespace Packager
 
 			Cached.Scripts = new Dictionary<string, Asset>();
 			Cached.Stylesheets = new Dictionary<string, Asset>();
+			Cached.VirtualDirectoryPathMap = new Dictionary<string, string>();
 		}
 
 		public static void FetchScripts()
@@ -109,6 +110,14 @@ namespace Packager
 			response.Write("<li>Virtual Directories Paths Mapped: " + Cached.VirtualDirectoryPathMap.Count + "</li>");
 			response.Write("</ul>");
 
+			response.Write("<br /><br /><br /><h2>Cached Virtual Directory Maps</h2>");
+			response.Write("<ul>");
+			foreach (string safepath in Cached.VirtualDirectoryPathMap.Keys)
+			{
+				response.Write("<li>" + safepath + " => " + Cached.VirtualDirectoryPathMap[safepath] + "</li>");
+			}
+			response.Write("</ul>");
+
 			response.Write("<br /><br /><br /><h2>Registered JavaScript Packages</h2>");
 			foreach (Asset asset in Scripts)
 			{
@@ -156,14 +165,6 @@ namespace Packager
 					response.Write("</ul>");
 				}
 			}
-
-			response.Write("<br /><br /><br /><h2>Cached Virtual Directory Maps</h2>");
-			response.Write("<ul>");
-			foreach (string safepath in Cached.VirtualDirectoryPathMap.Keys)
-			{
-				response.Write("<li>" + safepath + " => " + Cached.VirtualDirectoryPathMap[safepath] + "</li>");
-			}
-			response.Write("</ul>");
 		}
 	}
 }
