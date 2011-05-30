@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Packager.NET", "Packager.NET\Packager.NET.csproj", "{31971994-4E4B-4985-8056-F66163218E83}"
 EndProject
-Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Packager.NET WebForms Example", "Packager.NET WebForms Example", "{7DB51AA0-C56F-4A7C-AE4B-BC353C1F7BFE}"
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Packager.NET WebForms Example", "Packager.NET WebForms Example\", "{7DB51AA0-C56F-4A7C-AE4B-BC353C1F7BFE}"
 	ProjectSection(WebsiteProperties) = preProject
 		TargetFrameworkMoniker = ".NETFramework,Version%3Dv3.5"
 		ProjectReferences = "{31971994-4E4B-4985-8056-F66163218E83}|Packager.NET.dll;"
@@ -27,7 +27,7 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Packager.NET WebForms Examp
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4DDBFA2A-9320-4FAE-A90A-FD3F2ACD8A5F}"
 	ProjectSection(SolutionItems) = preProject
-		gitignore.txt = gitignore.txt
+		.gitignore = .gitignore
 		licence.txt = licence.txt
 		readme.md = readme.md
 	EndProjectSection

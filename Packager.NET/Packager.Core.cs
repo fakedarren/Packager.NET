@@ -235,7 +235,7 @@ namespace Packager
 
         protected override void Render(HtmlTextWriter writer)
         {
-			if (!Config.Loaded) Config.Load();
+			if (!Config.Loaded || HttpContext.Current.Request["clearcache"] != null) Config.Load();
 
 			foreach (CSS stylesheet in stylesheets)
 			{
@@ -251,7 +251,10 @@ namespace Packager
 
 			var sorter = new Sorter(allStylesheets);
 
-			if (Config.DebugMode == true)
+			bool forcedDebug = false;
+			if (HttpContext.Current.Request["debug"] != null && HttpContext.Current.Request["debug"] == "true") forcedDebug = true;
+
+			if (Config.DebugMode == true || forcedDebug == true)
 			{
 				foreach (string path in sorter.Sorted)
 				{
@@ -293,7 +296,7 @@ namespace Packager
 
         protected override void Render(HtmlTextWriter writer)
         {
-			if (!Config.Loaded) Config.Load();
+			if (!Config.Loaded || HttpContext.Current.Request["clearcache"] != null) Config.Load();
 
 			foreach (Script script in scripts)
 			{
@@ -309,7 +312,10 @@ namespace Packager
 
 			var sorter = new Sorter(allScripts);
 
-			if (Config.DebugMode == true)
+			bool forcedDebug = false;
+			if (HttpContext.Current.Request["debug"] != null && HttpContext.Current.Request["debug"] == "true") forcedDebug = true;
+
+			if (Config.DebugMode == true || forcedDebug == true)
 			{
 				foreach (string path in sorter.Sorted)
 				{
