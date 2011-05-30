@@ -32,15 +32,17 @@ namespace Packager
 
 			var domain = HttpContext.Current.Request.Url.Host.ToString();
 
-			ConfigurationSettings = ConfigurationFile.SelectSingleNode("//configuration[@domain=" + domain + "]");
-			if (ConfigurationSettings == null) ConfigurationSettings = ConfigurationFile.SelectSingleNode("//configuration");
+			ConfigurationSettings = ConfigurationFile.SelectSingleNode("/packager/configuration");
 
-			DebugMode = Convert.ToBoolean(ConfigurationSettings.SelectSingleNode("//debug").InnerText);
-			Compress = Convert.ToBoolean(ConfigurationSettings.SelectSingleNode("//compress").InnerText);
-			Optimise = Convert.ToBoolean(ConfigurationSettings.SelectSingleNode("//optimise").InnerText);
+			var domainConfig = ConfigurationFile.SelectSingleNode("/packager/configuration[@domain=" + domain + "]");
+			if (domainConfig != null) ConfigurationSettings = domainConfig;
 
-			CacheFolder = Convert.ToString(ConfigurationSettings.SelectSingleNode("//cachefolder").InnerText);
-			RootFolder = Convert.ToString(ConfigurationSettings.SelectSingleNode("//rootfolder").InnerText);
+			DebugMode = Convert.ToBoolean(ConfigurationSettings.SelectSingleNode("settings/debug").InnerText);
+			Compress = Convert.ToBoolean(ConfigurationSettings.SelectSingleNode("settings/compress").InnerText);
+			Optimise = Convert.ToBoolean(ConfigurationSettings.SelectSingleNode("settings/optimise").InnerText);
+
+			CacheFolder = Convert.ToString(ConfigurationSettings.SelectSingleNode("settings/cachefolder").InnerText);
+			RootFolder = Convert.ToString(ConfigurationSettings.SelectSingleNode("settings/rootfolder").InnerText);
 
 			FetchScripts();
 			FetchStylesheets();
@@ -49,7 +51,7 @@ namespace Packager
 		public static void FetchScripts()
 		{
 			Scripts = new List<Asset>();
-			foreach (XmlNode script in ConfigurationSettings.SelectSingleNode("//javascript").ChildNodes)
+			foreach (XmlNode script in ConfigurationSettings.SelectSingleNode("javascript").ChildNodes)
 			{
 				var root = HttpContext.Current.Server.MapPath("~");
 				var folder = script.InnerText;
@@ -70,7 +72,7 @@ namespace Packager
 		public static void FetchStylesheets()
 		{
 			Stylesheets = new List<Asset>();
-			foreach (XmlNode stylesheet in ConfigurationSettings.SelectSingleNode("//css").ChildNodes)
+			foreach (XmlNode stylesheet in ConfigurationSettings.SelectSingleNode("css").ChildNodes)
 			{
 				var root = HttpContext.Current.Server.MapPath("~");
 				var folder = stylesheet.InnerText;
