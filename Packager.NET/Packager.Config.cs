@@ -14,6 +14,8 @@ namespace Packager
 		public static XmlDocument ConfigurationFile = new XmlDocument();
 		public static XmlNode ConfigurationSettings;
 
+		public static DateTime DateLoaded;
+
 		public static bool DebugMode = true;
 		public static bool Compress = false;
 		public static bool Optimise = false;
@@ -26,6 +28,12 @@ namespace Packager
 		public static void Load()
 		{
 			Loaded = true;
+
+			Cached.Scripts = new Dictionary<string, Asset>();
+			Cached.Stylesheets = new Dictionary<string, Asset>();
+			Cached.VirtualDirectoryPathMap = new Dictionary<string, string>();
+
+			DateLoaded = DateTime.Now;
 
 			var configPath = HttpContext.Current.Server.MapPath("~/Configuration/Packager.config");
 			ConfigurationFile.Load(configPath);
@@ -46,10 +54,6 @@ namespace Packager
 
 			FetchScripts();
 			FetchStylesheets();
-
-			Cached.Scripts = new Dictionary<string, Asset>();
-			Cached.Stylesheets = new Dictionary<string, Asset>();
-			Cached.VirtualDirectoryPathMap = new Dictionary<string, string>();
 		}
 
 		public static void FetchScripts()
@@ -108,6 +112,7 @@ namespace Packager
 			response.Write("<li>JavaScript Assets Registered: " + Scripts.Count + "</li>");
 			response.Write("<li>Stylesheet Assets Registered: " + Stylesheets.Count + "</li>");
 			response.Write("<li>Virtual Directories Paths Mapped: " + Cached.VirtualDirectoryPathMap.Count + "</li>");
+			response.Write("<li>Cached Loaded: " + DateLoaded.ToString("ddd, dd MMM yyyy HH':'mm':'ss") + "</li>");
 			response.Write("</ul>");
 
 			response.Write("<br /><br /><br /><h2>Cached Virtual Directory Maps</h2>");

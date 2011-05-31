@@ -95,6 +95,11 @@ namespace Packager
 		{
 			var yaml = Utilities.FetchYAMLFromFile(asset.MappedPath);
 
+			if (yaml == "")
+			{
+				asset.Provides.Add("Nothing");
+			}
+
 			var parser = new YamlParser();
 			bool success;
 			YamlStream yamlStream = parser.ParseYamlStream(new TextInput(yaml), out success);
