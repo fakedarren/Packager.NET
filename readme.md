@@ -47,8 +47,10 @@ Packager will then automatically parse the YAML headers of the files and pull in
  * Debug: This will not concatenate the files and just output all the dependencies and includes if set to 'true'
  * Compress: CSS and JavaScript will be minified (using the YUI minifier) if this is set to 'true'
  * Optimise: Currently this doesn't do anything but see below ('planned automatic optimisation')
+ * ShowErrors: Defaults to 'true'. If set to false it will trap all errors silently (good for live environments).
  * You obviously then have your packages.
 
+Note: Debug and ShowErrors can be overridden in the query string.
 
 ## How To Help
 
