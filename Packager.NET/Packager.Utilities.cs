@@ -107,7 +107,7 @@ namespace Packager
 			foreach (YamlDocument doc in yamlStream.Documents)
 			{
 				Mapping map = (doc.Root as Mapping);
-				if (map == null)
+				if (map == null && Config.ShowErrors == true)
 				{
 					throw new Exception("Packager: Failed to resolve dependencies for " + asset.MappedPath);
 				}
@@ -170,7 +170,7 @@ namespace Packager
 				}
 				stream.Close();
 			}
-			else
+			else if (Config.ShowErrors == true)
 			{
 				throw new Exception("Packager.NET failed to find file '" + file + "'");
 			}

@@ -54,7 +54,10 @@ namespace Packager
 			{
 				if (compressedContent == String.Empty)
 				{
-					var content = File.ReadAllText(MappedPath);
+					var content = "";
+					try { content = File.ReadAllText(MappedPath); }
+					catch (Exception e) { if (Config.ShowErrors == true) throw e; }
+
 					if (MappedPath.ToLower().EndsWith(".css"))
 					{
 						try { compressedContent = CssCompressor.Compress(content); }
@@ -96,7 +99,10 @@ namespace Packager
 			{
 				if (compressedContent == String.Empty)
 				{
-					var content = File.ReadAllText(MappedPath);
+					var content = "";
+					try { content = File.ReadAllText(MappedPath); }
+					catch (Exception e) { if (Config.ShowErrors == true) throw e; }
+
 					try { compressedContent = CssCompressor.Compress(content); }
 					catch { compressedContent = content; }
 				}
@@ -129,7 +135,10 @@ namespace Packager
 			{
 				if (compressedContent == String.Empty)
 				{
-					var content = File.ReadAllText(MappedPath);
+					var content = "";
+					try { content = File.ReadAllText(MappedPath); }
+					catch (Exception e) { if (Config.ShowErrors == true) throw e; }
+
 					try { compressedContent = JavaScriptCompressor.Compress(content); }
 					catch { compressedContent = content; }
 				}
@@ -180,7 +189,7 @@ namespace Packager
 				var holder = (this.Page.FindControl("CSSPlaceholder") as CSSHolder);
 				this.CSSFiles.ForEach(stylesheet => holder.stylesheets.Add(stylesheet));
 			}
-			else
+			else if (Config.ShowErrors == true)
 			{
 				throw new Exception("Packager: Could not find placeholder 'CSSPlaceholder' in Page or Master Page");
 			}
@@ -213,7 +222,7 @@ namespace Packager
 				var holder = (this.Page.FindControl("ScriptsPlaceholder") as ScriptHolder);
 				this.ScriptFiles.ForEach(script => holder.scripts.Add(script));
 			}
-			else
+			else if (Config.ShowErrors == true)
 			{
 				throw new Exception("Packager: Could not find placeholder 'ScriptsPlaceholder' in Page or Master Page");
 			}
@@ -236,63 +245,64 @@ namespace Packager
 
 		protected override void Render(HtmlTextWriter writer)
 		{
-			if (!Config.Loaded || HttpContext.Current.Request["clearcache"] != null) Config.Load();
-
-			foreach (CSS stylesheet in stylesheets)
+			try
 			{
-				var asset = new Asset()
+				if (!Config.Loaded || HttpContext.Current.Request["clearcache"] != null) Config.Load();
+
+				foreach (CSS stylesheet in stylesheets)
 				{
-					Path = stylesheet.Path
-				};
-				Utilities.ParseAsset(ref asset);
-				if (!allStylesheets.ContainsKey(asset.Path))
-				{
-					allStylesheets.Add(asset.Path, asset);
-				}
-			}
-
-			Utilities.GetAllDependencies(ref allStylesheets, "CSS");
-
-			var sorter = new Sorter(allStylesheets);
-
-			bool forcedDebug = false;
-			if (HttpContext.Current.Request["debug"] != null && HttpContext.Current.Request["debug"] == "true") forcedDebug = true;
-
-			if (Config.DebugMode == true || forcedDebug == true)
-			{
-				foreach (string path in sorter.Sorted)
-				{
-					writer.Write("\n<link href='" + Config.RootFolder + path + "' type='text/css' rel='stylesheet' media='screen' />");
-				}
-			}
-			else
-			{
-				string output = "";
-
-				foreach (string path in sorter.Sorted)
-				{
-					if (!Cached.Stylesheets.ContainsKey(path))
+					var asset = new Asset()
 					{
-						Cached.Stylesheets.Add(path, allStylesheets[path]);
+						Path = stylesheet.Path
+					};
+					Utilities.ParseAsset(ref asset);
+					if (!allStylesheets.ContainsKey(asset.Path))
+					{
+						allStylesheets.Add(asset.Path, asset);
 					}
-					var cachedAsset = Cached.Stylesheets[path];
-					output += (Config.Compress == true ? cachedAsset.CompressedContent : cachedAsset.UncompressedContent) + "\r\n";
 				}
 
-				if (output.Length > 0)
+				Utilities.GetAllDependencies(ref allStylesheets, "CSS");
+
+				var sorter = new Sorter(allStylesheets);
+
+				if (Config.DebugMode == true)
 				{
-					string hash = Utilities.CreateMD5Hash(output);
-					string target = HttpContext.Current.Server.MapPath("/" + Config.RootFolder + Config.CacheFolder + "/" + hash + ".css");
-					if (!File.Exists(target))
+					foreach (string path in sorter.Sorted)
 					{
-						TextWriter textwriter = new StreamWriter(target);
-						textwriter.Write(output);
-						textwriter.Close();
+						writer.Write("\n<link href='" + Config.RootFolder + path + "' type='text/css' rel='stylesheet' media='screen' />");
+					}
+				}
+				else
+				{
+					string output = "";
+
+					foreach (string path in sorter.Sorted)
+					{
+						if (!Cached.Stylesheets.ContainsKey(path))
+						{
+							Cached.Stylesheets.Add(path, allStylesheets[path]);
+						}
+						var cachedAsset = Cached.Stylesheets[path];
+						output += (Config.Compress == true ? cachedAsset.CompressedContent : cachedAsset.UncompressedContent) + "\r\n";
 					}
 
-					writer.Write("\n<link href='" + Config.RootFolder + Config.CacheFolder + "/" + hash + ".css' type='text/css' rel='stylesheet' media='screen' />");
+					if (output.Length > 0)
+					{
+						string hash = Utilities.CreateMD5Hash(output);
+						string target = HttpContext.Current.Server.MapPath("/" + Config.RootFolder + Config.CacheFolder + "/" + hash + ".css");
+						if (!File.Exists(target))
+						{
+							TextWriter textwriter = new StreamWriter(target);
+							textwriter.Write(output);
+							textwriter.Close();
+						}
+
+						writer.Write("\n<link href='" + Config.RootFolder + Config.CacheFolder + "/" + hash + ".css' type='text/css' rel='stylesheet' media='screen' />");
+					}
 				}
 			}
+			catch (Exception e) { if (Config.ShowErrors == true) throw e; }
 		}
 	}
 
@@ -303,64 +313,65 @@ namespace Packager
 
 		protected override void Render(HtmlTextWriter writer)
 		{
-			if (!Config.Loaded || HttpContext.Current.Request["clearcache"] != null) Config.Load();
-
-			foreach (Script script in scripts)
+			try
 			{
-				var asset = new Asset()
+				if (!Config.Loaded || HttpContext.Current.Request["clearcache"] != null) Config.Load();
+
+				foreach (Script script in scripts)
 				{
-					Path = script.Path
-				};
-				Utilities.ParseAsset(ref asset);
-				if (!allScripts.ContainsKey(asset.Path))
-				{
-					allScripts.Add(asset.Path, asset);
-				}
-			}
-
-			Utilities.GetAllDependencies(ref allScripts, "Script");
-
-			var sorter = new Sorter(allScripts);
-
-			bool forcedDebug = false;
-			if (HttpContext.Current.Request["debug"] != null && HttpContext.Current.Request["debug"] == "true") forcedDebug = true;
-
-			if (Config.DebugMode == true || forcedDebug == true)
-			{
-				foreach (string path in sorter.Sorted)
-				{
-					writer.Write("\n<script src='" + Config.RootFolder + path + "' type='text/javascript'></script>");
-				}
-			}
-			else
-			{
-				string output = "";
-
-				foreach (string path in sorter.Sorted)
-				{
-					if (!Cached.Scripts.ContainsKey(path))
+					var asset = new Asset()
 					{
-						Cached.Scripts.Add(path, allScripts[path]);
+						Path = script.Path
+					};
+					Utilities.ParseAsset(ref asset);
+					if (!allScripts.ContainsKey(asset.Path))
+					{
+						allScripts.Add(asset.Path, asset);
+					}
+				}
+
+				Utilities.GetAllDependencies(ref allScripts, "Script");
+
+				var sorter = new Sorter(allScripts);
+
+				if (Config.DebugMode == true)
+				{
+					foreach (string path in sorter.Sorted)
+					{
+						writer.Write("\n<script src='" + Config.RootFolder + path + "' type='text/javascript'></script>");
+					}
+				}
+				else
+				{
+					string output = "";
+
+					foreach (string path in sorter.Sorted)
+					{
+						if (!Cached.Scripts.ContainsKey(path))
+						{
+							Cached.Scripts.Add(path, allScripts[path]);
+						}
+
+						var cachedAsset = Cached.Scripts[path];
+						output += (Config.Compress == true ? cachedAsset.CompressedContent : cachedAsset.UncompressedContent) + "\r\n";
 					}
 
-					var cachedAsset = Cached.Scripts[path];
-					output += (Config.Compress == true ? cachedAsset.CompressedContent : cachedAsset.UncompressedContent) + "\r\n";
-				}
-
-				if (output.Length > 0)
-				{
-					string hash = Utilities.CreateMD5Hash(output);
-					string target = HttpContext.Current.Server.MapPath("/" + Config.RootFolder + Config.CacheFolder + "/" + hash + ".js");
-					if (!File.Exists(target))
+					if (output.Length > 0)
 					{
-						TextWriter textwriter = new StreamWriter(target);
-						textwriter.Write(output);
-						textwriter.Close();
-					}
+						string hash = Utilities.CreateMD5Hash(output);
+						string target = HttpContext.Current.Server.MapPath("/" + Config.RootFolder + Config.CacheFolder + "/" + hash + ".js");
+						if (!File.Exists(target))
+						{
+							TextWriter textwriter = new StreamWriter(target);
+							textwriter.Write(output);
+							textwriter.Close();
+						}
 
-					writer.Write("\n<script src='" + Config.RootFolder + Config.CacheFolder + "/" + hash + ".js' type='text/javascript'></script>");
+						writer.Write("\n<script src='" + Config.RootFolder + Config.CacheFolder + "/" + hash + ".js' type='text/javascript'></script>");
+					}
 				}
 			}
+			catch (Exception e) { if (Config.ShowErrors == true) throw e; }
 		}
 	}
 

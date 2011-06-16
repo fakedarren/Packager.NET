@@ -16,9 +16,57 @@ namespace Packager
 
 		public static DateTime DateLoaded;
 
-		public static bool DebugMode = true;
+		private static bool debugMode = true;
+		public static bool DebugMode
+		{
+			get
+			{
+				var request = HttpContext.Current.Request;
+				var session = HttpContext.Current.Session;
+
+				if ((request["debug"] != null && request["debug"].ToString() == "true"))
+				{
+					session["debug"] = "true";
+					return true;
+				}
+				else if (request["debug"] != null && request["debug"].ToString() == "false")
+				{
+					session["debug"] = "false";
+					return false;
+				}
+				else if (session["debug"] != null && session["debug"].ToString() == "true")
+				{
+					return true;
+				}
+				return debugMode;
+			}
+			set
+			{
+				debugMode = value;
+			}
+		}
+
 		public static bool Compress = false;
 		public static bool Optimise = false;
+
+		private static bool showErrors = true;
+		public static bool ShowErrors
+		{
+			get
+			{
+				var request = HttpContext.Current.Request;
+				if (request["showerrors"] != null)
+				{
+					return Convert.ToBoolean(request["showerrors"].ToString());
+				}
+				return showErrors;
+			}
+			set
+			{
+				showErrors = value;
+			}
+		}
+
 		public static string CacheFolder = "/Cache";
 		public static string RootFolder = "";
 
@@ -40,14 +88,17 @@ namespace Packager
 
 			var domain = HttpContext.Current.Request.Url.Host.ToString();
 
-			ConfigurationSettings = ConfigurationFile.SelectSingleNode("/packager/configuration");
+			ConfigurationSettings = ConfigurationFile.SelectSingleNode("/packager/configuration[count(@*) = 0]");
 
-			var domainConfig = ConfigurationFile.SelectSingleNode("/packager/configuration[@domain=" + domain + "]");
+			var domainConfig = ConfigurationFile.SelectSingleNode("/packager/configuration[@domain='" + domain + "']");
 			if (domainConfig != null) ConfigurationSettings = domainConfig;
 
 			DebugMode = Convert.ToBoolean(ConfigurationSettings.SelectSingleNode("settings/debug").InnerText);
 			Compress = Convert.ToBoolean(ConfigurationSettings.SelectSingleNode("settings/compress").InnerText);
 			Optimise = Convert.ToBoolean(ConfigurationSettings.SelectSingleNode("settings/optimise").InnerText);
+
+			var showErrorsSetting = ConfigurationSettings.SelectSingleNode("settings/showerrors");
+			if (showErrorsSetting != null) ShowErrors = Convert.ToBoolean(showErrorsSetting.InnerText);
 
 			CacheFolder = Convert.ToString(ConfigurationSettings.SelectSingleNode("settings/cachefolder").InnerText);
 			RootFolder = Convert.ToString(ConfigurationSettings.SelectSingleNode("settings/rootfolder").InnerText);
@@ -102,11 +153,12 @@ namespace Packager
 		{
 			var response = HttpContext.Current.Response;
 
-			response.Write("<h2>Current Configuration Settings</h2>");
+			response.Write("<h2>Current Configuration Settings (v1.1.0.4)</h2>");
 			response.Write("<ul>");
 			response.Write("<li>Debug mode: " + DebugMode + "</li>");
 			response.Write("<li>Compress: " + Compress + "</li>");
 			response.Write("<li>Optimise: " + Optimise + "</li>");
+			response.Write("<li>Show Errors: " + ShowErrors + "</li>");
 			response.Write("<li>Root Folder: " + RootFolder + "</li>");
 			response.Write("<li>Cache Folder: " + CacheFolder + "</li>");
 			response.Write("<li>JavaScript Assets Registered: " + Scripts.Count + "</li>");

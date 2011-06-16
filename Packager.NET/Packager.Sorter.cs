@@ -53,7 +53,14 @@ namespace Packager
 				{
 					for (int j = 0; j < assets[i].Requires.Count; j++)
 					{
-						sorter.AddEdge(i, indexes[assets[i].Requires[j].ToLower()]);
+						try { sorter.AddEdge(i, indexes[assets[i].Requires[j].ToLower()]); }
+						catch
+						{
+							if (Config.ShowErrors == true)
+							{
+								throw new Exception("Packager: The file '" + assets[i].Name + "' requires '" + assets[i].Requires[j] + "', which cannot be found");
+							}
+						}
 					}
 				}
 			}
